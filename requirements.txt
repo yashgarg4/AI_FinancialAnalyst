@@ -1,0 +1,9 @@
+crewai
+crewai-tools
+python-dotenv
+litellm
+google-generativeai
+yfinance
+streamlit
+requests
+cachetools
