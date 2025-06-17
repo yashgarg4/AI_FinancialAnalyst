@@ -17,7 +17,6 @@ from financial_tools import CompanyInfoTool, CompanyFinancialsTool, TickerSearch
 # Load environment variables
 load_dotenv()
 
-# --- LiteLLM Configuration for Gemini ---
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
 if not GEMINI_API_KEY:
     raise ValueError("GEMINI_API_KEY not found in .env file. Please set it.")
