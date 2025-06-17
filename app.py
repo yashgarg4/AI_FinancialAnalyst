@@ -233,12 +233,14 @@ st.markdown("Enter a company name or ticker symbol to get a financial analysis r
 if 'selected_ticker' not in st.session_state:
     st.session_state.selected_ticker = None
 
+if 'analysis_running' not in st.session_state: # To prevent re-kicking off analysis on reruns
+    st.session_state.analysis_running = False
+
 st.sidebar.header("Company Analysis")
 company_input = st.sidebar.text_input(
     "Enter Company Name or Ticker (e.g., Apple or AAPL):", 
     value="AAPL"
 )
-
 analyze_button_label = "📊 Analyze Company"
 if st.session_state.selected_ticker and st.session_state.get('last_company_input') == company_input:
     analyze_button_label = f"📊 Analyze {st.session_state.selected_ticker}"
@@ -247,8 +249,10 @@ if st.sidebar.button(analyze_button_label, key="analyze_button"):
     if not company_input:
         st.warning("⚠️ Please enter a company name or ticker.")
     else:
+        # Ticker identification logic
         if not st.session_state.selected_ticker or st.session_state.get('last_company_input') != company_input:
             st.session_state.selected_ticker = None
+            st.session_state.analysis_running = False # Reset analysis running flag
             st.session_state.last_company_input = company_input
 
             with st.spinner(f"🔍 Searching for ticker for '{company_input}'..."):
@@ -266,6 +270,7 @@ if st.sidebar.button(analyze_button_label, key="analyze_button"):
                         elif len(matches) == 1:
                             st.session_state.selected_ticker = matches[0].get("1. symbol")
                             st.success(f"Ticker found: {st.session_state.selected_ticker} for {matches[0].get('2. name')}")
+                            st.rerun() # Rerun to update button label and proceed to analysis section
                         else:
                             # Present options to the user if multiple matches
                             st.info(f"Multiple potential tickers found for '{company_input}'. Please select one:")
@@ -294,21 +299,25 @@ if st.sidebar.button(analyze_button_label, key="analyze_button"):
                 except Exception as e:
                     st.error(f"❌ An error occurred during ticker identification: {e}")
 
-        # Proceed with analysis if a ticker has been selected/identified
-        if st.session_state.selected_ticker:
+        # Proceed with analysis if a ticker has been selected/identified AND analysis is not already running
+        if st.session_state.selected_ticker and not st.session_state.analysis_running:
+            st.session_state.analysis_running = True # Set flag to indicate analysis is in progress
             st.info(f"🚀 Starting analysis for {st.session_state.selected_ticker} ({company_input})...")
             with st.spinner(f"🤖 Agents are working on {st.session_state.selected_ticker}... This may take a few moments."):
                 try:
                     inputs = {'company_ticker': st.session_state.selected_ticker, 'user_company_input': company_input}
                     result = financial_analysis_crew.kickoff(inputs=inputs)
-                    
+
                     st.success(f"✅ Analysis Complete for {st.session_state.selected_ticker}!")
                     st.markdown("---")
                     st.subheader(f"Financial Analysis Report for {st.session_state.selected_ticker} ({company_input})")
                     st.markdown(result)
                 except Exception as e:
                     st.error(f"❌ An error occurred during the main crew execution: {e}")
-            st.session_state.selected_ticker = None
-            st.session_state.last_company_input = None
+                finally:
+                    # Reset states for the next run, regardless of success or failure of the crew
+                    st.session_state.selected_ticker = None 
+                    st.session_state.last_company_input = None
+                    st.session_state.analysis_running = False
 else:
     st.info("Enter a company name or ticker in the sidebar and click 'Analyze Company' to start.")
