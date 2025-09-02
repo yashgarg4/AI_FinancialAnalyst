@@ -2,8 +2,6 @@
 
 This project is a powerful, multi-agent financial analysis tool built using CrewAI and Streamlit. It takes a company name or stock ticker, orchestrates a team of AI agents to gather and analyze data from various sources, and presents a comprehensive financial report through an easy-to-use web interface.
 
- <!-- Replace with an actual screenshot URL -->
-
 ## ✨ Features
 
 - **Interactive Web UI**: A clean and simple user interface built with Streamlit.
