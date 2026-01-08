@@ -1,7 +1,7 @@
 import os
 import yfinance as yf
 import requests # For making API calls
-from crewai.tools import BaseTool # Corrected import for BaseTool
+from crewai.tools import BaseTool
 from typing import Type, Any
 from cachetools import TTLCache
 from pydantic import BaseModel, Field # Using standard Pydantic import
